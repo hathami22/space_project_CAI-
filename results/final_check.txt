@@ -1,0 +1,28 @@
+[PASS] codec: round trip preserves every field                                           ( 0.0s)  sigma error 0.0%
+[PASS] codec: frame sizes are 17 B (1 det), +7 B per extra, 234 B max                    ( 0.0s)  17 / +7 / 234 B
+[PASS] codec: a single flipped bit ANYWHERE is rejected (CRC)                            ( 0.0s)  192 bit positions tested
+[PASS] codec: truncated / empty / garbage / wrong-version data returns None              ( 0.0s)  
+[PASS] codec: timestamps in a batch are accurate to 100 ms, values clamp safely          ( 0.0s)  
+[PASS] codec: 0 detections rejected; sender splits 33 detections into 2 frames           ( 0.0s)  
+[PASS] codec: binary is >= 8x smaller than the JSON baseline                             ( 0.0s)  JSON 27843 B vs binary 2880 B = 9.7x
+[PASS] link: same seed -> identical run; different seed -> different run                 ( 0.0s)  
+[PASS] link: blackout drops 100% inside the window and recovers right after              ( 0.0s)  
+[PASS] link: bursty average loss hits the requested rate (+-3 points)                    ( 0.0s)  10%->9.9%, 30%->29.7%, 50%->50.4%
+[PASS] link: duplicates and reordering happen; delay stays within latency +- jitter      ( 0.0s)  
+[PASS] link+receiver: every corrupted packet is caught by the CRC                        ( 0.0s)  213 corrupted, 213 rejected
+[PASS] receiver: duplicate frames are processed once and counted                         ( 0.0s)  
+[PASS] receiver: 16-bit sequence wrap (65530 -> 13) counts 20 frames, 0 lost             ( 0.0s)  
+[PASS] receiver: reordered frames accepted, loss counted correctly                       ( 0.0s)  
+[PASS] receiver: garbage datagrams never crash it                                        ( 0.1s)  
+[PASS] receiver: dedup memory is bounded                                                 ( 0.0s)  
+[PASS] hazard map: latest observation wins, memory is bounded                            ( 0.0s)  
+[PASS] resilience: resilient >= naive coverage at every loss level, big gain at 30%/50%  ( 0.1s)  0%: 78%->96%; 10%: 68%->93%; 30%: 51%->91%; 50%: 36%->85%
+[PASS] resilience: every frame <= 234 B and the repeat budget holds                      ( 0.0s)  max frame 66 B, average 44 B/s
+[PASS] resilience: bounded memory (entries capped) and no crash on 5000 hazards          ( 0.2s)  
+[PASS] end to end: same seed -> byte-identical results (jury can reproduce)              ( 0.0s)  
+[PASS] end to end: blackout recovery - map is complete shortly after the link returns    ( 0.0s)  first blackout-era hazard delivered 6.8 s after the link returned
+[PASS] udp: real loopback sockets deliver frames through the transport                   ( 0.3s)  10/10 frames over 127.0.0.1
+[PASS] adapter: tracking removes duplicate hazards, rotation and beacons correct         ( 0.2s)  
+[PASS] bridge: WebSocket snapshots, hazards arrive, kill-link button works               ( 9.0s)  4 hazards visible, blackout toggled on/off
+
+26 passed, 0 failed, 0 skipped

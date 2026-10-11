@@ -1,0 +1,186 @@
+{
+  "generated": "2026-10-11 00:42",
+  "seeds": 30,
+  "python": "3.13.9",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "frame_sizes": [
+    {
+      "detections_per_frame": 1,
+      "binary_bytes": 17.0,
+      "binary_bytes_per_det": 17.0,
+      "json_bytes": 114.1,
+      "json_minified_bytes": 101.1,
+      "ratio_vs_json": 6.7,
+      "ratio_vs_minified_json": 5.9
+    },
+    {
+      "detections_per_frame": 2,
+      "binary_bytes": 24.0,
+      "binary_bytes_per_det": 12.0,
+      "json_bytes": 228.8,
+      "json_minified_bytes": 202.8,
+      "ratio_vs_json": 9.5,
+      "ratio_vs_minified_json": 8.4
+    },
+    {
+      "detections_per_frame": 4,
+      "binary_bytes": 38.0,
+      "binary_bytes_per_det": 9.5,
+      "json_bytes": 457.0,
+      "json_minified_bytes": 405.0,
+      "ratio_vs_json": 12.0,
+      "ratio_vs_minified_json": 10.7
+    },
+    {
+      "detections_per_frame": 8,
+      "binary_bytes": 66.0,
+      "binary_bytes_per_det": 8.2,
+      "json_bytes": 914.0,
+      "json_minified_bytes": 810.0,
+      "ratio_vs_json": 13.8,
+      "ratio_vs_minified_json": 12.3
+    },
+    {
+      "detections_per_frame": 16,
+      "binary_bytes": 122.0,
+      "binary_bytes_per_det": 7.6,
+      "json_bytes": 1826.8,
+      "json_minified_bytes": 1618.8,
+      "ratio_vs_json": 15.0,
+      "ratio_vs_minified_json": 13.3
+    },
+    {
+      "detections_per_frame": 32,
+      "binary_bytes": 234.0,
+      "binary_bytes_per_det": 7.3,
+      "json_bytes": 3653.4,
+      "json_minified_bytes": 3237.4,
+      "ratio_vs_json": 15.6,
+      "ratio_vs_minified_json": 13.8
+    }
+  ],
+  "codec_speed": {
+    "frame": "4 detections, 38 B",
+    "encode_frames_per_s": 353015,
+    "decode_frames_per_s": 418991
+  },
+  "delivery": [
+    {
+      "loss": 0.0,
+      "naive": {
+        "coverage": 0.7843137254901961,
+        "lat_mean_ms": 1298.7458333333334,
+        "lat_p95_ms": 1389,
+        "bytes_per_s": 9.633333333333333
+      },
+      "resilient": {
+        "coverage": 0.9673202614379085,
+        "lat_mean_ms": 2953.791216216216,
+        "lat_p95_ms": 14257,
+        "bytes_per_s": 38.51777777777777
+      }
+    },
+    {
+      "loss": 0.1,
+      "naive": {
+        "coverage": 0.6928104575163399,
+        "lat_mean_ms": 1300.5622641509433,
+        "lat_p95_ms": 1390,
+        "bytes_per_s": 9.633333333333333
+      },
+      "resilient": {
+        "coverage": 0.9516339869281046,
+        "lat_mean_ms": 4034.6078296703295,
+        "lat_p95_ms": 17306,
+        "bytes_per_s": 38.51777777777777
+      }
+    },
+    {
+      "loss": 0.3,
+      "naive": {
+        "coverage": 0.5490196078431372,
+        "lat_mean_ms": 1302.0964285714285,
+        "lat_p95_ms": 1392,
+        "bytes_per_s": 9.633333333333333
+      },
+      "resilient": {
+        "coverage": 0.9137254901960784,
+        "lat_mean_ms": 5757.675965665236,
+        "lat_p95_ms": 24207,
+        "bytes_per_s": 38.51777777777777
+      }
+    },
+    {
+      "loss": 0.5,
+      "naive": {
+        "coverage": 0.37189542483660126,
+        "lat_mean_ms": 1299.9103690685413,
+        "lat_p95_ms": 1390,
+        "bytes_per_s": 9.633333333333333
+      },
+      "resilient": {
+        "coverage": 0.8379084967320262,
+        "lat_mean_ms": 8246.945397815913,
+        "lat_p95_ms": 32896,
+        "bytes_per_s": 38.51777777777777
+      }
+    }
+  ],
+  "blackout_recovery": [
+    {
+      "loss": 0.0,
+      "naive": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 0.0,
+        "first_s": null,
+        "t90_s": null,
+        "runs_reaching_t90_pct": 0
+      },
+      "resilient": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 100.0,
+        "first_s": 1.3,
+        "t90_s": 9.7,
+        "runs_reaching_t90_pct": 100
+      }
+    },
+    {
+      "loss": 0.1,
+      "naive": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 0.0,
+        "first_s": null,
+        "t90_s": null,
+        "runs_reaching_t90_pct": 0
+      },
+      "resilient": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 100.0,
+        "first_s": 1.3,
+        "t90_s": 9.8,
+        "runs_reaching_t90_pct": 100
+      }
+    },
+    {
+      "loss": 0.3,
+      "naive": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 0.0,
+        "first_s": null,
+        "t90_s": null,
+        "runs_reaching_t90_pct": 0
+      },
+      "resilient": {
+        "blackout_hazards_per_run": 6,
+        "recovered_pct": 98.3,
+        "first_s": 1.4,
+        "t90_s": 15.4,
+        "runs_reaching_t90_pct": 90
+      }
+    }
+  ],
+  "pytest": {
+    "exit_code": 0,
+    "summary": "57 passed in 6.00s"
+  }
+}

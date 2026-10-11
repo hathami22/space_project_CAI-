@@ -1,0 +1,6 @@
+pytest
+websockets
+numpy
+opencv-python
+# only needed to run best.pt live (skip it and use replay mode otherwise):
+ultralytics

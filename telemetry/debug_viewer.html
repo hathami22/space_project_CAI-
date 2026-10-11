@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>CRATER debug viewer</title>
+<style>
+  body{margin:0;background:#0b0d12;color:#ddd;font:14px system-ui;display:flex;gap:16px;padding:12px}
+  canvas{background:#111622;border:1px solid #333}
+  #side{width:320px} button{padding:8px 14px;font-size:14px;margin:8px 0;cursor:pointer}
+  .bad{color:#ff6b6b;font-weight:bold} .ok{color:#6bff95} pre{margin:0;line-height:1.5}
+</style>
+<canvas id="c" width="640" height="640"></canvas>
+<div id="side">
+  <h3>Mission Control (debug)</h3>
+  <div id="conn" class="bad">disconnected</div>
+  <div id="contact"></div>
+  <button id="kill">Kill the link</button>
+  <pre id="stats"></pre>
+  <p style="color:#889">Marker fades with data age; the uncertainty ring grows (capped at 4 m).
+  Dashed ring = older than 60 s.<br>
+  Brown = boulder, orange = crater, cyan = ice, grey = rover trail.</p>
+</div>
+<script>
+const COLORS = {boulder:"#c9a26b", crater:"#ff7b54", ice:"#6bd6ff"};
+const SCALE = 0.16, CX = 320, CY = 320;          // px per cm, canvas centre = origin
+const GROW_CM_PER_S = 8, RING_CAP_CM = 400, STALE_MS = 60000, FADE_MS = 30000;
+let snap = null, recvAt = 0, ws = null, blackoutOn = false;
+const $ = id => document.getElementById(id);
+
+function connect() {
+  ws = new WebSocket("ws://localhost:8765");
+  ws.onopen = () => { $("conn").textContent = "connected"; $("conn").className = "ok"; };
+  ws.onclose = () => { $("conn").textContent = "disconnected"; $("conn").className = "bad"; setTimeout(connect, 1000); };
+  ws.onmessage = e => { const m = JSON.parse(e.data); if (m.type === "snapshot") { snap = m; recvAt = performance.now(); } };
+}
+connect();
+$("kill").onclick = () => { blackoutOn = !blackoutOn; ws.send(JSON.stringify({type:"set_blackout", on:blackoutOn}));
+                            $("kill").textContent = blackoutOn ? "Restore the link" : "Kill the link"; };
+
+function draw() {
+  const g = $("c").getContext("2d");
+  g.clearRect(0, 0, 640, 640);
+  g.strokeStyle = "#2a3350"; g.beginPath();
+  g.moveTo(CX, 0); g.lineTo(CX, 640); g.moveTo(0, CY); g.lineTo(640, CY); g.stroke();
+  if (snap) {
+    const extra = performance.now() - recvAt;            // smooth ageing between snapshots
+    const pos = h => [CX + h.x_cm * SCALE, CY - h.y_cm * SCALE];
+    const beacons = snap.hazards.filter(h => h.class === "beacon").sort((a, b) => a.ts_ms - b.ts_ms);
+    g.fillStyle = "#667";
+    beacons.forEach(h => { const [x, y] = pos(h); g.fillRect(x - 1.5, y - 1.5, 3, 3); });
+    if (beacons.length) { const [x, y] = pos(beacons[beacons.length - 1]);
+                          g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }
+    snap.hazards.filter(h => h.class !== "beacon").forEach(h => {
+      const age = h.age_ms + extra, [x, y] = pos(h);
+      const alpha = Math.max(0.2, 1 - age / FADE_MS);
+      const ringCm = Math.min(h.sigma_cm + (age / 1000) * GROW_CM_PER_S, RING_CAP_CM);
+      const ring = Math.max(3, ringCm * SCALE);
+      g.globalAlpha = alpha; g.strokeStyle = g.fillStyle = COLORS[h.class] || "#fff";
+      g.setLineDash(age > STALE_MS ? [4, 4] : []);
+      g.beginPath(); g.arc(x, y, ring, 0, 7); g.stroke();
+      g.setLineDash([]);
+      g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.globalAlpha = 1;
+    });
+    const l = snap.link, since = (l.since_last_rx_ms ?? 0) + extra;
+    $("contact").innerHTML = (l.last_rx_ms === null || since > 5000 || l.blackout)
+      ? `<span class="bad">NO CONTACT (${(since/1000).toFixed(0)} s)</span>`
+      : `<span class="ok">link up, last packet ${(since/1000).toFixed(1)} s ago</span>`;
+    const hz = snap.hazards.filter(h => h.class !== "beacon");
+    $("stats").textContent =
+      `mission time   ${(snap.t_ms/1000).toFixed(0)} s\nhazards known  ${hz.length}\n` +
+      `frames         ${l.received}/${l.expected}\nloss           ${l.loss_pct} %\n` +
+      `CRC failures   ${l.crc_fail}\nduplicates     ${l.duplicates}\nbytes received ${l.bytes_rx}`;
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
