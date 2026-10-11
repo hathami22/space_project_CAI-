@@ -212,9 +212,8 @@ continue with `link.blackout: true`, no new detection packets are received, and
 `since_last_rx_ms` increases.
 
 `server.py` is only a static HTTP server for the built `frontend/dist` directory.
-It does not provide a WebSocket endpoint. The HTTP port defaults to `8000`; the
-independent telemetry mock (or the later server from teammate B) uses port
-`8765`.
+It does not provide a WebSocket endpoint. The HTTP port defaults to `8000`; one
+telemetry process provides the WebSocket endpoint on port `8765`.
 
 Install dependencies and build the static frontend from the repository root:
 
@@ -246,10 +245,39 @@ page's `location.hostname` and uses port `8765`; to connect to a different
 WebSocket endpoint, provide its URL in the `ws` query parameter, for example:
 `http://localhost:8000/?ws=ws%3A%2F%2Frover-host%3A8765`.
 
-For teammate B's server, run their WebSocket server on port 8765 using this same
-snapshot contract; keep `server.py` running separately to serve the built page.
-If B's server is on another host or port, set the `ws` query parameter or
-change `TELEMETRY_CONFIG.webSocketUrl` in `frontend/src/lib/telemetry.js`.
+## Live telemetry in the centimeter map frame
+
+The merged telemetry bridge emits the same WebSocket snapshot contract consumed
+by this dashboard. From the repository root, run either the telemetry demo
+bridge or the perception replay bridge on port `8765`; do not run it at the
+same time as `dashboard/mock_ws.py`.
+
+The simulated bridge needs the dashboard's `websockets` dependency. The
+perception replay additionally needs the repository-root requirements for
+OpenCV, NumPy, and Ultralytics.
+
+```powershell
+# Simulated rover positions and detections
+python -m telemetry.bridge --loss 0.1
+
+# Or run the detector over a video/image sequence
+python run_live.py --frames <video-or-image-folder> --weights best.pt --speed 30 --fps 2
+```
+
+Keep the dashboard's static server running separately on port `8000` and open
+`http://localhost:8000`. The dashboard map is a local orthogonal frame centered
+on the landing-site origin: positive `x_cm` is east/right and positive `y_cm` is
+north/up. The perception adapter transforms camera-relative detections into
+that frame and emits the rover as a `beacon` sample, so rover-follow and trail
+rendering use the same coordinates as the hazards. Coordinates are centimeters;
+the map grid labels convert them to meters.
+
+The perception replay currently estimates rover pose from the configured
+starting point, heading, and constant speed (`--speed`, default 30 cm/s;
+heading defaults to 0 degrees, north, clockwise-positive). It is not GPS or
+hardware odometry, so real-world position accuracy depends on replacing that
+estimate with the vehicle's actual pose source. To use a WebSocket server on a
+different host or port, set the page's `ws` query parameter as described above.
 
 ## Link blackout control
 

@@ -1,6 +1,8 @@
 import asyncio
+from telemetry.bridge import build_snapshot
 from telemetry.channel import SimChannel
 from telemetry.codec import Detection, encode_frame, MAX_DETECTIONS
+from telemetry.hazardmap import MissionMap
 from telemetry.link import LinkConfig, LossyLink
 from telemetry.receiver import Receiver
 from telemetry.sender import Sender
@@ -60,6 +62,33 @@ def test_link_status_contact_time():
     assert rx.link_status(500)["since_last_rx_ms"] is None
     rx.on_packet(frame(0), 1000)
     assert rx.link_status(4000)["since_last_rx_ms"] == 3000
+
+
+def test_dashboard_snapshot_uses_orthogonal_centimeter_frame():
+    mission_map = MissionMap()
+    receiver = Receiver(on_frame=mission_map.update)
+    link = LossyLink(LinkConfig.with_avg_loss(0, seed=1))
+
+    initial = build_snapshot(mission_map, receiver, link, 0)
+    assert "last_rx_ms" not in initial["link"]
+    assert "since_last_rx_ms" not in initial["link"]
+
+    receiver.on_packet(
+        encode_frame(
+            0,
+            [
+                det(),
+                Detection(3, 7, 110, 210, 1000, 10),
+            ],
+        ),
+        1000,
+    )
+    snapshot = build_snapshot(mission_map, receiver, link, 1000)
+    boulder = next(item for item in snapshot["hazards"] if item["class"] == "rock")
+    beacon = next(item for item in snapshot["hazards"] if item["class"] == "beacon")
+
+    assert (boulder["x_cm"], boulder["y_cm"]) == (100, 200)
+    assert (beacon["x_cm"], beacon["y_cm"]) == (110, 210)
 
 
 def test_memory_is_bounded():

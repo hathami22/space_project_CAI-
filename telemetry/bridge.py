@@ -20,10 +20,17 @@ from .udp import MissionClock, open_udp_transport, start_receiver
 
 
 def build_snapshot(mm, rx, link, now_ms):
-    hazards = [{"id": f"{c['class']}:{c['x_cm'] // 100}:{c['y_cm'] // 100}", **c}
-               for c in mm.snapshot(now_ms)]
+    hazards = []
+    for item in mm.snapshot(now_ms):
+        class_name = "rock" if item["class"] == "boulder" else item["class"]
+        hazards.append({
+            **item,
+            "id": f"{class_name}:{item['x_cm'] // 100}:{item['y_cm'] // 100}",
+            "class": class_name,
+        })
     status = rx.link_status(now_ms)
     status["blackout"] = link.in_blackout(now_ms)
+    status = {key: value for key, value in status.items() if value is not None}
     return {"type": "snapshot", "t_ms": now_ms, "hazards": hazards, "link": status}
 
 
