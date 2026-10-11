@@ -1,7 +1,7 @@
 const defaultWebSocketUrl =
   typeof location === "undefined"
-    ? "ws://localhost:8765"
-    : `ws://${location.hostname}:8765`;
+    ? "ws://127.0.0.1:8765"
+    : `ws://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8765`;
 const webSocketOverride =
   typeof location === "undefined"
     ? null
